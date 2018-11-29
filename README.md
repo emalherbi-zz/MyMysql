@@ -11,14 +11,6 @@ composer require emalherbi/mymysql
 # Usage
 
 ```php
-<?php
-
-/*
- * Eduardo Malherbi Martins (http://emalherbi.com/)
- * Copyright @emm
- * Full Stack Web Developer.
- */
-
 require_once 'vendor/autoload.php';
 
 try {
