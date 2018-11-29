@@ -329,6 +329,8 @@ class MyMysql
     public function execute($sql)
     {
         $this->logger('MyMysql | method: execute');
+        $this->logger($sql);
+
         $stmt = $this->db->prepare($sql);
 
         return $stmt->execute();
