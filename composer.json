@@ -1,0 +1,15 @@
+{
+    "name": "emalherbi/mymysql",
+    "description": "My Mysql | PDO",
+    "license": "MIT",
+    "type": "library",
+    "homepage": "https://github.com/emalherbi/MyMysql",
+    "require": {
+        "php": ">= 5.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MyMysql\\": "src"
+        }
+    }
+}
