@@ -380,7 +380,7 @@ class MyMysql
 
     private function logger($str, $err = '')
     {
-        if (true == $this->db['DB_LOG']) {
+        if (true == $this->ini['DB_LOG']) {
             $date = date('Y-m-d');
             $hour = date('H:i:s');
 
