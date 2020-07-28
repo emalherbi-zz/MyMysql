@@ -53,7 +53,7 @@ class MyMysql
     public function connect()
     {
         $this->logger('MyMysql | method: connect');
-        $this->db = new PDO('mysql:host=' . $this->ini['DB_HOST'] . ';dbname=' . $this->ini['DB_NAME'], $this->ini['DB_USER'], $this->ini['DB_PASS'], array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+        $this->db = new PDO('mysql:host='.$this->ini['DB_HOST'].';dbname='.$this->ini['DB_NAME'], $this->ini['DB_USER'], $this->ini['DB_PASS'], array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
 
         return $this->isConnect();
     }
@@ -80,7 +80,7 @@ class MyMysql
         try {
             $this->logger('MyMysql | method: getIni');
 
-            return parse_ini_file($this->RT . $this->DS . 'MyMysql.ini');
+            return parse_ini_file($this->RT.$this->DS.'MyMysql.ini');
         } catch (Exception $e) {
             $err = $e->getMessage();
             $this->logger('MyMysql | getIni', $err);
@@ -109,7 +109,7 @@ class MyMysql
             foreach ($where as $key => &$value) {
                 $key = str_replace(':', '', $key);
                 $stmt->bindParam($key, $value);
-                $log = preg_replace('/:' . $key . '\b/i', "'$value'", $log);
+                $log = preg_replace('/:'.$key.'\b/i', "'$value'", $log);
             }
         }
 
@@ -130,7 +130,7 @@ class MyMysql
             foreach ($where as $key => &$value) {
                 $key = str_replace(':', '', $key);
                 $stmt->bindParam($key, $value);
-                $log = preg_replace('/:' . $key . '\b/i', "'$value'", $log);
+                $log = preg_replace('/:'.$key.'\b/i', "'$value'", $log);
             }
         }
 
@@ -159,7 +159,7 @@ class MyMysql
             foreach ($where as $key => &$value) {
                 $key = str_replace(':', '', $key);
                 $stmt->bindParam($key, $value);
-                $log = preg_replace('/:' . $key . '\b/i', "'$value'", $log);
+                $log = preg_replace('/:'.$key.'\b/i', "'$value'", $log);
             }
         }
 
@@ -183,7 +183,7 @@ class MyMysql
             foreach ($where as $key => &$value) {
                 $key = str_replace(':', '', $key);
                 $stmt->bindParam($key, $value);
-                $log = preg_replace('/:' . $key . '\b/i', "'$value'", $log);
+                $log = preg_replace('/:'.$key.'\b/i', "'$value'", $log);
             }
         }
 
@@ -217,7 +217,7 @@ class MyMysql
         $stmt = $conn->prepare($sql);
         foreach ($item as $key => &$value) {
             $stmt->bindParam($key, $value);
-            $log = preg_replace('/:' . $key . '\b/i', "'$value'", $log);
+            $log = preg_replace('/:'.$key.'\b/i', "'$value'", $log);
         }
 
         $this->logger($log);
@@ -226,7 +226,7 @@ class MyMysql
         $this->error = '';
         if (!$exec) {
             $errorInfo = $stmt->errorInfo();
-            $this->error = $errorInfo[1] . ' - ' . $errorInfo[2];
+            $this->error = $errorInfo[1].' - '.$errorInfo[2];
 
             $log = $this->error;
             $this->logger($log);
@@ -262,12 +262,12 @@ class MyMysql
         foreach ($item as $key => &$value) {
             $key = str_replace(':', '', $key);
             $stmt->bindParam($key, $value);
-            $log = preg_replace('/:' . $key . '\b/i', "'$value'", $log);
+            $log = preg_replace('/:'.$key.'\b/i', "'$value'", $log);
         }
         foreach ($where as $key => &$value) {
             $key = str_replace(':', '', $key);
             $stmt->bindParam($key, $value);
-            $log = preg_replace('/:' . $key . '\b/i', "'$value'", $log);
+            $log = preg_replace('/:'.$key.'\b/i', "'$value'", $log);
         }
 
         $this->logger($log);
@@ -276,7 +276,7 @@ class MyMysql
         $this->error = '';
         if (!$exec) {
             $errorInfo = $stmt->errorInfo();
-            $this->error = $errorInfo[1] . ' - ' . $errorInfo[2];
+            $this->error = $errorInfo[1].' - '.$errorInfo[2];
 
             $log = $this->error;
             $this->logger($log);
@@ -309,7 +309,7 @@ class MyMysql
         foreach ($where as $key => &$value) {
             $key = str_replace(':', '', $key);
             $stmt->bindParam($key, $value);
-            $log = preg_replace('/:' . $key . '\b/i', "'$value'", $log);
+            $log = preg_replace('/:'.$key.'\b/i', "'$value'", $log);
         }
 
         $this->logger($log);
@@ -318,7 +318,7 @@ class MyMysql
         $this->error = '';
         if (!$exec) {
             $errorInfo = $stmt->errorInfo();
-            $this->error = $errorInfo[1] . ' - ' . $errorInfo[2];
+            $this->error = $errorInfo[1].' - '.$errorInfo[2];
 
             $log = $this->error;
             $this->logger($log);
@@ -366,7 +366,7 @@ class MyMysql
 
         if (is_bool($result->model)) {
             $result->status = false;
-            $result->msg = "Ops. Ocorreu um erro. Method: $method. Sql: $sql. Table: $table. Where: " . json_encode($where) . ". Order By: $orderBy. Obj: " . json_encode($obj) . ". Id: $id ";
+            $result->msg = "Ops. Ocorreu um erro. Method: $method. Sql: $sql. Table: $table. Where: ".json_encode($where).". Order By: $orderBy. Obj: ".json_encode($obj).". Id: $id ";
         }
 
         return $result;
@@ -398,7 +398,7 @@ class MyMysql
     {
         $this->logger('MyMysql | method: setIni');
 
-        INI::write($this->RT . $this->DS . 'MyMysql.ini', array('INI' => $ini));
+        INI::write($this->RT.$this->DS.'MyMysql.ini', array('INI' => $ini));
     }
 
     private function logger($str, $err = '')
@@ -416,7 +416,7 @@ class MyMysql
                 $log .= "[ERROR] > $err \n\n";
             }
 
-            $file = fopen($this->DL . $this->DS . "log-$date.txt", 'a+b');
+            $file = fopen($this->DL.$this->DS."log-$date.txt", 'a+');
             fwrite($file, $log);
             fclose($file);
         }

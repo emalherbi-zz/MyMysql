@@ -31,8 +31,10 @@ return PhpCsFixer\Config::create()
         'phpdoc_order' => true,
         'semicolon_after_instruction' => true,
         'strict_comparison' => false,
-        'strict_param' => true,
+        'strict_param' => false,
         'dir_constant' => false,
+        'native_constant_invocation' => false,
+        'native_function_invocation' => false
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()
