@@ -372,6 +372,8 @@ class MyMysql
         return $result;
     }
 
+    /* transaction */
+
     public function beginTransaction()
     {
         return $this->db->beginTransaction();
