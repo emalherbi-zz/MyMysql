@@ -14,10 +14,6 @@ composer require emalherbi/mymysql
 require_once 'vendor/autoload.php';
 
 try {
-    if (@date_default_timezone_get() !== @ini_get('date.timezone')) {
-        @date_default_timezone_set('America/Sao_Paulo');
-    }
-
     $mysql = new MyMysql\MyMysql(array(
         'DB_LOG' => true,
         'DB_HOST' => '192.168.1.100',
@@ -28,22 +24,22 @@ try {
 
     /* fetch */
 
-    $result = $mysql->fetchRow('ENTIDADES', array('ID_ENTIDADE' => '2'), 'ORDER BY ID_ENTIDADE');
+    $result = $mysql->fetchRow('CLIENTS', array('ID_CLIENTS' => '2'), 'ORDER BY ID_CLIENTS');
     echo '<pre>';
     echo print_r($result);
     echo '</pre>';
 
-    $result = $mysql->fetchRow2('SELECT * FROM ENTIDADES');
+    $result = $mysql->fetchRow2('SELECT * FROM CLIENTS');
     echo '<pre>';
     echo print_r($result);
     echo '</pre>';
 
-    $result = $mysql->fetchAll('ENTIDADES', array('ID_ENTIDADE' => '2'), 'ORDER BY ID_ENTIDADE');
+    $result = $mysql->fetchAll('CLIENTS', array('ID_CLIENTS' => '2'), 'ORDER BY ID_CLIENTS');
     echo '<pre>';
     echo print_r($result);
     echo '</pre>';
 
-    $result = $mysql->fetchAll2('SELECT * FROM ENTIDADES LIMIT 2');
+    $result = $mysql->fetchAll2('SELECT * FROM CLIENTS LIMIT 2');
     echo '<pre>';
     echo print_r($result);
     echo '</pre>';
@@ -51,42 +47,40 @@ try {
     /* insert */
 
     $item = new stdClass();
-    $item->ID_MESA = 0;
-    $item->ID_EMPRESA = 2;
-    $item->CODIGOMESA = 999;
-    $item->DESCRICAO = 'TESTE';
-    $item->ATIVO = 1;
+    $item->ID_BOARD = 0;
+    $item->CODE = 999;
+    $item->DESCRIPTION = 'TEST';
+    $item->ACTIVE = 1;
 
-    $result = $mysql->insert('MESAS', $item);
+    $result = $mysql->insert('BOARD', $item);
     echo '<pre>';
     echo print_r($result);
     echo '</pre>';
 
     /* update */
 
-    $ID_MESA = 530;
+    $ID_BOARD = 530;
     $item = new stdClass();
-    $item->ID_EMPRESA = 2;
-    $item->CODIGOMESA = 999;
-    $item->DESCRICAO = 'TESTE';
-    $item->ATIVO = 1;
+    $item->CODE = 999;
+    $item->DESCRIPTION = 'TEST';
+    $item->ACTIVE = 1;
 
-    $result = $mysql->update('MESAS', $item, array('ID_MESA' => $ID_MESA), $ID_MESA);
+    $result = $mysql->update('BOARD', $item, array('ID_BOARD' => $ID_BOARD), $ID_BOARD);
     echo '<pre>';
     echo print_r($result);
     echo '</pre>';
 
     /* delete */
 
-    $ID_MESA = 531;
-    $result = $mysql->delete('MESAS', array('ID_MESA' => $ID_MESA));
+    $ID_BOARD = 531;
+    $result = $mysql->delete('BOARD', array('ID_BOARD' => $ID_BOARD));
     echo '<pre>';
     echo print_r($result);
     echo '</pre>';
 
     /* execute */
 
-    $sql = " INSERT INTO MESAS(ID_EMPRESA, CODIGOMESA, DESCRICAO) VALUES (2, 888, 'TESTE') ";
+    $sql = " INSERT INTO BOARD(CODE, DESCRIPTION) VALUES (888, 'TEST') ";
     $result = $mysql->execute($sql);
     echo '<pre>';
     echo print_r($result);
@@ -97,4 +91,3 @@ try {
     die(print_r($e->getMessage().'-'.$mysql->getError()));
 }
 ```
-

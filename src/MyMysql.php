@@ -16,31 +16,38 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 
 class MyMysql
 {
-    private $DS = null; // DS
-    private $RT = null; // ROOT
-    private $DL = null; // DIR LOG
-
-    private $db = null;
-    private $error = '';
     private $ini = null;
+    private $dirlog = null;
+    private $db = null;
 
-    public function __construct($ini = array(), $dl = '')
+    public function __construct($ini = '', $dirlog = '')
     {
-        $this->DS = DIRECTORY_SEPARATOR;
-        $this->RT = realpath(dirname(__FILE__));
-        $this->DL = empty($dl) ? realpath(dirname(__FILE__)) : $dl;
+        $this->logger('MyMysql | method: __construct');
 
         $this->ini = $ini;
+        $this->dirlog = empty($dirlog) ? realpath(dirname(__FILE__)) : $dirlog;
+        $this->db = null;
+
+        if (empty($this->ini)) {
+            $err = "It's not possible to connect to the database because the parameters entered are invalid.";
+            $log = '';
+            $log .= 'Error. MyMysql | method: __construct.';
+
+            echo '<pre>';
+            echo print_r($log);
+            echo print_r($err);
+            echo '</pre>';
+            die();
+        }
+
         $this->connection();
     }
 
-    /* error */
-
-    public function getError()
+    public function __destruct()
     {
-        $this->logger('MyMysql | method: getError');
+        $this->logger('MyMysql | method: __destruct');
 
-        return $this->error;
+        $this->disconnect();
     }
 
     /* connnect */
@@ -58,19 +65,19 @@ class MyMysql
         return $this->db;
     }
 
-    public function isConnect()
-    {
-        $this->logger('MyMysql | method: isConnect');
-
-        return empty($this->db) ? false : true;
-    }
-
     public function disconnect()
     {
         $this->logger('MyMysql | method: disconnect');
         $this->db = null;
 
         return !$this->isConnect();
+    }
+
+    public function isConnect()
+    {
+        $this->logger('MyMysql | method: isConnect');
+
+        return empty($this->db) ? false : true;
     }
 
     /* fetch */
@@ -160,10 +167,10 @@ class MyMysql
 
         $log = $sql;
 
-        $connection = $this->db;
-        $stmt = $connection->prepare('SET SQL_BIG_SELECTS = 1');
+        $conn = $this->db;
+        $stmt = $conn->prepare('SET SQL_BIG_SELECTS = 1');
         $stmt->execute();
-        $stmt = $connection->prepare($sql);
+        $stmt = $conn->prepare($sql);
         if (!empty($where)) {
             foreach ($where as $key => &$value) {
                 $key = str_replace(':', '', $key);
@@ -179,17 +186,18 @@ class MyMysql
     }
 
     /*
-     * BY BELUSSO: RETORNA 2, 3, 5 SELECTS NA MESMA PEGADA.
-     * NUM ARRAY, DE ACORDO COM A ORDEM DOS MESMOS
+     * RETURN ARRAY OF SELECT.
      */
     public function fetchAll3($sql, $where = array())
     {
+        $this->logger('MyMysql | method: fetchAll3');
+
         $log = $sql;
 
-        $connection = $this->db;
-        $stmt = $connection->prepare('SET SQL_BIG_SELECTS = 1');
+        $conn = $this->db;
+        $stmt = $conn->prepare('SET SQL_BIG_SELECTS = 1');
         $stmt->execute();
-        $stmt = $connection->prepare($sql);
+        $stmt = $conn->prepare($sql);
         if (!empty($where)) {
             foreach ($where as $key => &$value) {
                 $key = str_replace(':', '', $key);
@@ -240,19 +248,14 @@ class MyMysql
         $this->logger($log);
         $exec = $stmt->execute();
 
-        $this->error = '';
+        $err = '';
         if (!$exec) {
             $errorInfo = $stmt->errorInfo();
-            $this->error = $errorInfo[1].' - '.$errorInfo[2];
+            $err = $errorInfo[1].' - '.$errorInfo[2];
 
-            $log = $this->error;
-            $this->logger($log);
+            $this->logger($log, $err);
 
-            echo '<pre>';
-            echo print_r($log);
-            echo print_r($this->error);
-            echo '</pre>';
-            die();
+            return false;
         }
         $item->id = $conn->lastInsertId();
         $item->ID = $item->id;
@@ -295,19 +298,14 @@ class MyMysql
         $this->logger($log);
         $exec = $stmt->execute();
 
-        $this->error = '';
+        $err = '';
         if (!$exec) {
             $errorInfo = $stmt->errorInfo();
-            $this->error = $errorInfo[1].' - '.$errorInfo[2];
+            $err = $errorInfo[1].' - '.$errorInfo[2];
 
-            $log = $this->error;
-            $this->logger($log);
+            $this->logger($log, $err);
 
-            echo '<pre>';
-            echo print_r($log);
-            echo print_r($this->error);
-            echo '</pre>';
-            die();
+            return false;
         }
         $item->id = $id;
         $item->ID = $id;
@@ -342,19 +340,14 @@ class MyMysql
         $this->logger($log);
         $exec = $stmt->execute();
 
-        $this->error = '';
+        $err = '';
         if (!$exec) {
             $errorInfo = $stmt->errorInfo();
-            $this->error = $errorInfo[1].' - '.$errorInfo[2];
+            $err = $errorInfo[1].' - '.$errorInfo[2];
 
-            $log = $this->error;
-            $this->logger($log);
+            $this->logger($log, $err);
 
-            echo '<pre>';
-            echo print_r($log);
-            echo print_r($this->error);
-            echo '</pre>';
-            die();
+            return false;
         }
 
         return $exec;
@@ -366,8 +359,19 @@ class MyMysql
         $this->logger($sql);
 
         $stmt = $this->db->prepare($sql);
+        $exec = $stmt->execute();
 
-        return $stmt->execute();
+        $err = '';
+        if (!$exec) {
+            $errorInfo = $stmt->errorInfo();
+            $err = $errorInfo[1].' - '.$errorInfo[2];
+
+            $this->logger($log, $err);
+
+            return false;
+        }
+
+        return $exec;
     }
 
     public function sql($method = '', $sql = '', $table = '', $where = array(), $orderBy = '', $obj = null, $id = 0)
@@ -431,22 +435,42 @@ class MyMysql
 
     private function logger($str, $err = '')
     {
-        if (true == $this->ini['DB_LOG']) {
+        if (true === $this->ini['DB_LOG'] || 'true' === $this->ini['DB_LOG'] || !empty($err)) {
             $date = date('Y-m-d');
             $hour = date('H:i:s');
 
-            @mkdir($this->DL, 0777, true);
-            @chmod($this->DL, 0777);
+            $isdb = false;
+            if (!empty($this->db)) {
+                $sql = " SELECT COUNT(*) AS CT
+                    FROM information_schema.COLUMNS
+                    WHERE TABLE_NAME = 'MYMYSQLLOG' ";
 
-            $log = '';
-            $log .= "[$hour] > $str \n";
-            if (!empty($err)) {
-                $log .= "[ERROR] > $err \n\n";
+                $row = $this->fetchRow2($sql);
+
+                if (!empty($row) && $row->CT > 0) {
+                    $obj = new stdClass();
+                    $obj->LOG = "[$hour] > $str";
+                    $obj->ERROR = "[ERROR] > $err";
+
+                    $this->insert('MYMYSQLLOG', $obj);
+                    $isdb = true;
+                }
             }
 
-            $file = fopen($this->DL.$this->DS."log-$date.txt", 'a+');
-            fwrite($file, $log);
-            fclose($file);
+            if (false === $isdb) {
+                @mkdir($this->dirlog, 0777, true);
+                @chmod($this->dirlog, 0777);
+
+                $log = '';
+                $log .= "[$hour] > $str \n";
+                if (!empty($err)) {
+                    $log .= '[ERROR] > '.$err." \n\n";
+                }
+
+                $file = @fopen($this->dirlog.DIRECTORY_SEPARATOR."log-$date.txt", 'a+');
+                @fwrite($file, $log);
+                @fclose($file);
+            }
         }
     }
 
