@@ -6,32 +6,24 @@
  * Full Stack Web Developer.
  */
 
-namespace MyMysql;
-
-use PDO;
-use stdClass;
-
-set_time_limit(0);
-error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
-
-class MyMysql
+class MySql
 {
-    private $DS = null; // DS
-    private $RT = null; // ROOT
-    private $DL = null; // DIR LOG
+    public $ini;
+    public $error;
+    public $db;
 
-    private $db = null;
-    private $error = '';
-    private $ini = null;
-
-    public function __construct($ini = array(), $dl = '')
+    public function __construct()
     {
-        $this->DS = DIRECTORY_SEPARATOR;
-        $this->RT = realpath(dirname(__FILE__));
-        $this->DL = empty($dl) ? realpath(dirname(__FILE__)) : $dl;
+        $this->ini = null;
+        $this->db = null;
+        $this->error = '';
 
-        $this->ini = $ini;
-        $this->connection();
+        $this->loadIni();
+    }
+
+    public function loadIni()
+    {
+        $this->ini = parse_ini_file(CONFIG.DS.'application.ini');
     }
 
     /* error */
@@ -54,6 +46,10 @@ class MyMysql
         }
 
         $this->db = new PDO('mysql:host='.$this->ini['DB_HOST'].';dbname='.$this->ini['DB_NAME'], $this->ini['DB_USER'], $this->ini['DB_PASS'], array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+
+        // For Amazon.
+        $stmt = $this->db->prepare("SET time_zone = 'America/Montevideo'");
+        $stmt->execute();
 
         return $this->db;
     }
@@ -230,8 +226,8 @@ class MyMysql
         $sql .= ')';
         $log = $sql;
 
-        $conn = $this->db;
-        $stmt = $conn->prepare($sql);
+        $db = $this->db;
+        $stmt = $db->prepare($sql);
         foreach ($item as $key => &$value) {
             $stmt->bindParam($key, $value);
             $log = preg_replace('/:'.$key.'\b/i', "'$value'", $log);
@@ -254,7 +250,7 @@ class MyMysql
             echo '</pre>';
             die();
         }
-        $item->id = $conn->lastInsertId();
+        $item->id = $db->lastInsertId();
         $item->ID = $item->id;
 
         return (!$exec) ? false : $item;
@@ -279,8 +275,8 @@ class MyMysql
         }
         $log = $sql;
 
-        $conn = $this->db;
-        $stmt = $conn->prepare($sql);
+        $db = $this->db;
+        $stmt = $db->prepare($sql);
         foreach ($item as $key => &$value) {
             $key = str_replace(':', '', $key);
             $stmt->bindParam($key, $value);
@@ -429,23 +425,18 @@ class MyMysql
 
     /* private */
 
-    private function logger($str, $err = '')
+    private function logger($msg)
     {
         if (true == $this->ini['DB_LOG']) {
-            $date = date('Y-m-d');
-            $hour = date('H:i:s');
+            $path = LOG.DS;
+            $file = date('Y-m-d').'.log';
 
-            @mkdir($this->DL, 0777, true);
-            @chmod($this->DL, 0777);
+            @mkdir($path, 0777, true);
+            @chmod($path, 0777);
 
-            $log = '';
-            $log .= "[$hour] > $str \n";
-            if (!empty($err)) {
-                $log .= "[ERROR] > $err \n\n";
-            }
-
-            $file = fopen($this->DL.$this->DS."log-$date.txt", 'a+');
-            fwrite($file, $log);
+            $file = @fopen($path.$file, 'a+');
+            fwrite($file, $msg);
+            fwrite($file, "\n");
             fclose($file);
         }
     }
