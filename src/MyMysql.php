@@ -22,16 +22,15 @@ class MyMysql
 
     public function __construct($ini = '', $dirlog = '')
     {
-        $this->logger('MyMysql | method: __construct');
-
         $this->ini = $ini;
         $this->dirlog = empty($dirlog) ? realpath(dirname(__FILE__)) : $dirlog;
         $this->db = null;
 
+        $this->logger('MyMysql | method: __construct');
+
         if (empty($this->ini)) {
             $err = "It's not possible to connect to the database because the parameters entered are invalid.";
-            $log = '';
-            $log .= 'Error. MyMysql | method: __construct.';
+            $log = 'Error. MyMysql | method: __construct.';
 
             echo '<pre>';
             echo print_r($log);
@@ -435,42 +434,39 @@ class MyMysql
 
     private function logger($str, $err = '')
     {
-        if (true === $this->ini['DB_LOG'] || 'true' === $this->ini['DB_LOG'] || !empty($err)) {
-            $date = date('Y-m-d');
-            $hour = date('H:i:s');
+        $date = date('Y-m-d');
+        $hour = date('H:i:s');
 
-            $isdb = false;
-            if (!empty($this->db)) {
-                $sql = " SELECT COUNT(*) AS CT
-                    FROM information_schema.COLUMNS
-                    WHERE TABLE_NAME = 'MYMYSQLLOG' ";
+        if (!empty($err) && !empty($this->db)) {
+            $sql = " SELECT COUNT(*) AS CT
+                FROM information_schema.COLUMNS
+                WHERE TABLE_NAME = 'MYMYSQLLOG' ";
 
-                $row = $this->fetchRow2($sql);
+            $row = $this->fetchRow2($sql);
 
-                if (!empty($row) && $row->CT > 0) {
-                    $obj = new stdClass();
-                    $obj->LOG = "[$hour] > $str";
-                    $obj->ERROR = "[ERROR] > $err";
+            if (!empty($row) && $row->CT > 0) {
+                $obj = new stdClass();
+                $obj->LOG = "[$hour] > $str";
+                $obj->ERROR = "[ERROR] > $err";
 
-                    $this->insert('MYMYSQLLOG', $obj);
-                    $isdb = true;
-                }
+                $this->insert('MYMYSQLLOG', $obj);
+                $isdb = true;
+            }
+        }
+
+        if (true === $this->ini['DB_LOG'] || 'true' === $this->ini['DB_LOG']) {
+            @mkdir($this->dirlog, 0777, true);
+            @chmod($this->dirlog, 0777);
+
+            $log = '';
+            $log .= "[$hour] > $str \n";
+            if (!empty($err)) {
+                $log .= '[ERROR] > '.$err." \n\n";
             }
 
-            if (false === $isdb) {
-                @mkdir($this->dirlog, 0777, true);
-                @chmod($this->dirlog, 0777);
-
-                $log = '';
-                $log .= "[$hour] > $str \n";
-                if (!empty($err)) {
-                    $log .= '[ERROR] > '.$err." \n\n";
-                }
-
-                $file = @fopen($this->dirlog.DIRECTORY_SEPARATOR."log-$date.txt", 'a+');
-                @fwrite($file, $log);
-                @fclose($file);
-            }
+            $file = @fopen($this->dirlog.DIRECTORY_SEPARATOR."log-$date.txt", 'a+');
+            @fwrite($file, $log);
+            @fclose($file);
         }
     }
 
