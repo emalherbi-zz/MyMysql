@@ -441,7 +441,6 @@ class MyMysql
             $sql = " SELECT COUNT(*) AS CT
                 FROM information_schema.COLUMNS
                 WHERE TABLE_NAME = 'MYMYSQLLOG' ";
-
             $row = $this->fetchRow2($sql);
 
             if (!empty($row) && $row->CT > 0) {
@@ -450,7 +449,6 @@ class MyMysql
                 $obj->ERROR = "[ERROR] > $err";
 
                 $this->insert('MYMYSQLLOG', $obj);
-                $isdb = true;
             }
         }
 
