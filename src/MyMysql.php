@@ -11,8 +11,8 @@ namespace MyMysql;
 use PDO;
 use stdClass;
 
-set_time_limit(0);
-error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+// set_time_limit(0);
+// error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 
 class MyMysql
 {
